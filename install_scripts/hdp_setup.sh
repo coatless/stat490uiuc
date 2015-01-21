@@ -186,20 +186,20 @@ if [ "$RHADOOP" == true ]; then
 	echo 'Installing rmr2, rhdfs, plyrmr, and R dependency packages...' 
 	sudo R --no-save << EOF
 # Install dev tools
-install.packages('devtools', repos="http://cran.us.r-project.org")
+install.packages('devtools', repos="http://cran.us.r-project.org", INSTALL_opts=c('--byte-compile'))
 	
 # Install rmr2 dependencies
 install.packages(c('RJSONIO', 'itertools', 'digest', 'Rcpp', 'functional', 'httr', 'plyr', 'stringr', 'reshape2', 'caTools', 'rJava'), repos="http://cran.us.r-project.org", INSTALL_opts=c('--byte-compile') )
 
 # Install plyrmr dependencies
-install.packages(c('dplyr', 'R.methodsS3', 'Hmisc'), repos="http://cran.us.r-project.org", INSTALL_opts=c('--byte-compile')
+install.packages(c('dplyr', 'R.methodsS3', 'Hmisc'), repos="http://cran.us.r-project.org", INSTALL_opts=c('--byte-compile'))
 
 # Install the RHadoop goodies (aka we do not care about version numbers..)
 require('devtools')
-install_github('RevolutionAnalytics/memoise')
-install_github('RevolutionAnalytics/rmr2', subdir='pkg')
-install_github('RevolutionAnalytics/rhdfs', subdir='pkg')
-install_github('RevolutionAnalytics/plyrmr', subdir='pkg')
+install_github('RevolutionAnalytics/memoise', args=c('-–byte-compile'))
+install_github('RevolutionAnalytics/rmr2', subdir='pkg', args=c('-–byte-compile'))
+install_github('RevolutionAnalytics/rhdfs', subdir='pkg', args=c('-–byte-compile'))
+install_github('RevolutionAnalytics/plyrmr', subdir='pkg', args=c('-–byte-compile'))
 
 # Installs some wonderful HPC Packages
 install.packages(c('bigmemory','foreach','iterators','doMC','doSNOW','itertools'), repos='http://cran.us.r-project.org', INSTALL_opts=c('--byte-compile') )
