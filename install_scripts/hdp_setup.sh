@@ -14,8 +14,8 @@
 
 # List of supported options with default values
 
-# For installing APPS: R, git, wget, vim, and curl
-APPS=false
+# For installing SSUITE: R, git, wget, vim, and curl
+SSUITE=false
 
 # For installing R Studio Server
 RSTUDIO=false
@@ -31,8 +31,8 @@ RHADOOP=false
 # Change default values to specified.
 while [ $# -gt 0 ]; do
 	case "$1" in
-		--apps)
-			APPS=true
+		--ssuite)
+			SSUITE=true
 			;;	
 		--rstudio)
 			RSTUDIO=true
@@ -70,10 +70,10 @@ while [ $# -gt 0 ]; do
 done
 
 # Install Applications
-if [ "$APPS" == true ]; then
-	echo 'Installing APPS...' 
+if [ "$SSUITE" == true ]; then
+	echo 'Installing software suite...' 
 
-	sudo yum install -y R git wget vim curl
+	sudo yum install -y -q R git wget vim curl
 fi
 
 # Install RStudio Server
@@ -82,9 +82,9 @@ if [ "$RSTUDIO" == true ]; then
 
 	# Manually check to see if this is the latest release via: http://www.rstudio.com/products/rstudio/download-server/
 	# Set up for CentOS x64
-	sudo yum install -y openssl098e # Required only for RedHat/CentOS 6 and 7
+	sudo yum install -y -q openssl098e # Required only for RedHat/CentOS 6 and 7
 	wget -O /tmp/rstudio-server-0.98.1091-x86_64.rpm http://download2.rstudio.org/rstudio-server-0.98.1091-x86_64.rpm
-	sudo yum install -y --nogpgcheck rstudio-server-0.98.1091-x86_64.rpm
+	sudo yum install -y -q --nogpgcheck /tmp/rstudio-server-0.98.1091-x86_64.rpm
 	
 	# Verify install
 	sudo rstudio-server verify-installation
@@ -127,7 +127,7 @@ else
 fi
 
 # Install Applications
-if [ "$APPS" == true]; then
+if [ "$HPATHS" == true]; then
 	echo 'Setting Hadoop paths for RHadoop...' 
 
 	# Not necessarily the most efficient way of getting R_HOME. 
