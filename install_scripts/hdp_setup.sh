@@ -15,7 +15,7 @@
 # List of supported options with default values
 
 # For installing APPS: R, git, wget, vim, and curl
-APPS = false
+APPS=false
 
 # For installing R Studio Server
 RSTUDIO=false
@@ -70,7 +70,7 @@ while [ $# -gt 0 ]; do
 done
 
 # Install Applications
-if [ "$APPS" == true]; then
+if [ "$APPS" == true ]; then
 	echo 'Installing APPS...' 
 
 	sudo yum install -y R git wget vim curl
