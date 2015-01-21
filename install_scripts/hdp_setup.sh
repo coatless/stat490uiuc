@@ -1,16 +1,32 @@
 #!/bin/sh
-##
+#############################
 ## hdp_setup.sh
-##
+#############################
 ## James Joseph Balamuta
 ## james.balamuta@gmail.com
-##
+#############################
 ## Initial Release 1.0 -- 01/20/15
-##
-## To use the script:
-## wget hdp_setup.sh
+#############################
+## Examples Uses
+#############################
+## #Obtain Script
+## wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/install_scripts/hdp_setup.sh
 ## chmod u+x hdp_setup.sh
-
+## 
+## # Default Setup
+## ./hdp_setup.sh --ssuite --rstudio --createuser --sudouser --hpaths --rhadoop
+## # Installs R and RStudio Server (manual check needed for new releases)
+## # Creates a new user: rstudio with password: rstudio
+## # Sets up hadoop paths and install RHadoop (latest)
+##
+## # Complex Setup
+## ./hdp_setup.sh --ssuite --rstudio --rstudio-port=8008 --rstudio-address=127.0.0.1 --createuser --user=james --user-pw=nottelling --sudouser --hpaths --rhadoop
+## # All of the default actions
+## # Changes RStudio Server config to different values
+## # Different user account is created 
+##
+## # Terminal R Only (No R Studio) with non-default user
+## ./hdp_setup.sh --createuser --user=james --user-pw=nottelling --sudouser --hpaths --rhadoop
 
 # List of supported options with default values
 
@@ -144,11 +160,11 @@ if [ "$SUDOUSER" == true ]; then
 	echo "$USER ALL=(ALL) ALL" >> /etc/sudoers
 fi
 
-# Install Applications
+# Set paths for RHadoop
 if [ "$HPATHS" == true ]; then
 	echo 'Setting Hadoop paths for RHadoop...' 
 
-	# Not necessarily the most efficient way of getting R_HOME. 
+	# Location of R library
 	RLIB_HOME=$(R RHOME)
 
 	# Search for file path and take the last one.
