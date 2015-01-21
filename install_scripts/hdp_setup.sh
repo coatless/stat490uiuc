@@ -14,7 +14,7 @@
 
 # List of supported options with default values
 
-# For installing SSUITE: R, git, wget, vim, and curl
+# For installing SSUITE: R, vim, and curl-devel
 SSUITE=false
 
 # For installing R Studio Server
@@ -73,7 +73,7 @@ done
 if [ "$SSUITE" == true ]; then
 	echo 'Installing software suite...' 
 
-	sudo yum install -y -q R git wget vim curl
+	sudo yum install -y -q R vim curl-devel
 fi
 
 # Install RStudio Server
@@ -131,7 +131,7 @@ if [ "$HPATHS" == true]; then
 	echo 'Setting Hadoop paths for RHadoop...' 
 
 	# Not necessarily the most efficient way of getting R_HOME. 
-	RLIB_HOME=$(Rscript -e "Sys.getenv('R_HOME')" | grep -Po '".*?"' | sed 's/"//g')
+	RLIB_HOME=$(R RHOME)
 
 	# Search for file path and take the last one.
 	HADOOP_STREAMING=$(find / -name 'hadoop-streaming*.jar' | grep 'hadoop-mapreduce/hadoop-streaming.*.jar' | tail -n 1)
@@ -149,10 +149,10 @@ fi
 
 # Install RHadoop ecosystem
 if [ "$RHADOOP" == true ]; then
-	echo 'Installing R packages...' 
+	echo 'Installing rmr2, rhdfs, plyrmr, and R dependency packages...' 
 	sudo R --no-save << EOF
 # Install dev tools
-install.packages(c('devtools'), repos="http://cran.us.r-project.org", INSTALL_opts=c('--byte-compile') )
+install.packages('devtools', repos="http://cran.us.r-project.org")
 	
 # Install rmr2 dependencies
 install.packages(c('RJSONIO', 'itertools', 'digest', 'Rcpp', 'functional', 'httr', 'plyr', 'stringr', 'reshape2', 'caTools', 'rJava'), repos="http://cran.us.r-project.org", INSTALL_opts=c('--byte-compile') )
@@ -160,7 +160,7 @@ install.packages(c('RJSONIO', 'itertools', 'digest', 'Rcpp', 'functional', 'httr
 # Install plyrmr dependencies
 install.packages(c('dplyr', 'R.methodsS3', 'Hmisc'), repos="http://cran.us.r-project.org", INSTALL_opts=c('--byte-compile')
 
-# Install the RHadoop goodies (aka we do not care about version numbers!)
+# Install the RHadoop goodies (aka we do not care about version numbers..)
 require('devtools')
 install_github('RevolutionAnalytics/memoise')
 install_github('RevolutionAnalytics/rmr2', subdir='pkg')
