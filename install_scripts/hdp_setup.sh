@@ -138,7 +138,7 @@ if [ "$CREATEUSER" == true ]; then
 fi
 
 if [ "$SUDOUSER" == true ]; then
-	echo 'Granting sudo user'
+	echo 'Granting sudo user...'
 	
 	# Give user sudo power
 	echo "$USER ALL=(ALL) ALL" >> /etc/sudoers
