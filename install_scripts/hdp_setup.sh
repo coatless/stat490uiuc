@@ -19,10 +19,12 @@ SSUITE=false
 
 # For installing R Studio Server
 RSTUDIO=false
-USER='rstudio'
-USERPW='rstudio'
 RSTUDIOADDRESS="0.0.0.0"
 RSTUDIOPORT=8787
+CREATEUSER=false
+USER='rstudio'
+USERPW='rstudio'
+SUDOUSER=false
 
 # For installing RHadoop ecosystem
 HPATHS=false
@@ -37,14 +39,6 @@ while [ $# -gt 0 ]; do
 		--rstudio)
 			RSTUDIO=true
 			;;
-		--user)
-		   shift
-		   USER=$1
-		   ;;
-   		--user-pw)
-   		   shift
-   		   USERPW=$1
-   		   ;;
         --rstudio-port)
             shift
             RSTUDIOPORT=$1
@@ -53,6 +47,20 @@ while [ $# -gt 0 ]; do
             shift
             RSTUDIOADDRESS=$1
             ;;
+		--createuser)
+		   CREATEUSER=true
+		   ;;
+		--user)
+		   shift
+		   USER=$1
+		   ;;
+   		--user-pw)
+   		   shift
+   		   USERPW=$1
+   		   ;;
+		--sudouser)
+			SUDOUSER=true
+		   ;;
 		--hpaths)
 			HPATHS=true
 			;;
@@ -106,28 +114,38 @@ if [ "$RSTUDIO" == true ]; then
 	sudo rstudio-server restart
 fi
 
-if id -u $USER >/dev/null 2>&1; then
-	echo 'User already exists.'
-	echo 'If you are trying to change the password, use terminal command:'
-	echo 'echo "USER:USERPW" | chpasswd'
-else
-	echo 'User does not exist...'
-	echo 'Adding user and initializing log directory...' 
-	# Create user
-	sudo useradd $USER
-	
-	# Apply password
-	echo "$USER:$USERPW" | chpasswd
-	
-	# Build directory path
-	mkdir -p /var/log/hadoop/$USER
+if[ "$CREATEUSER" == true ]; then
+	echo 'Trying to creating a user...'
+	if id -u $USER >/dev/null 2>&1; then
+		echo 'User already exists.'
+		echo 'If you are trying to change the password, use terminal command:'
+		echo 'echo "USER:USERPW" | chpasswd'
+	else
+		echo 'User does not exist...'
+		echo 'Adding user and initializing log directory...' 
+		# Create user
+		sudo useradd $USER
+		
+		# Apply password
+		echo "$USER:$USERPW" | chpasswd
+			
+		# Build directory path
+		mkdir -p /var/log/hadoop/$USER
 
-	# Allow ANYONE to write to any files within the directory
-	sudo chown $USER:$USER -Rf /var/log/hadoop/$USER	
+		# Allow ANYONE to write to any files within the directory
+		sudo chown $USER:$USER -Rf /var/log/hadoop/$USER	
+	fi
+fi
+
+if [ "$SUDOUSER" == true ]; then
+	echo 'Granting sudo user'
+	
+	# Give user sudo power
+	echo "$USER ALL=(ALL) ALL" >> /etc/sudoers
 fi
 
 # Install Applications
-if [ "$HPATHS" == true]; then
+if [ "$HPATHS" == true ]; then
 	echo 'Setting Hadoop paths for RHadoop...' 
 
 	# Not necessarily the most efficient way of getting R_HOME. 
