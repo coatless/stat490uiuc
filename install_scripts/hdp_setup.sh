@@ -114,7 +114,7 @@ if [ "$RSTUDIO" == true ]; then
 	sudo rstudio-server restart
 fi
 
-if[ "$CREATEUSER" == true ]; then
+if [ "$CREATEUSER" == true ]; then
 	echo 'Trying to creating a user...'
 	if id -u $USER >/dev/null 2>&1; then
 		echo 'User already exists.'
