@@ -56,10 +56,9 @@ function process_data {
     gzip -c "$tmp_output_file" >> "$zipped_file"
     echo "Created file: $zipped_file"
  
-    hdfs dfs -put - gz/$year.gz
-    
-	echo "Put file on hdfs: gz/$year.gz"
-	
+    hdfs dfs -put $zipped_file gz/$year.gz	
+    echo "Put file on hdfs: gz/$year.gz"
+
 	rm -rf "$local_path"
     rm "$tmp_output_file"
 }
