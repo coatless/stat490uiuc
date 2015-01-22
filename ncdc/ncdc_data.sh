@@ -4,6 +4,9 @@
 ## ncdc_data.sh
 #############################
 ## This file was provided by GitHub users: rehevkor5 and Alexander-Ignatyev
+## The file has been modified so that:
+##  default values for year are 1901 and 1910
+##  default output folder is all
 #############################
 ## Initial Release 1.0 -- 01/22/15
 #############################
@@ -18,7 +21,7 @@
 
 # global parameters
 g_tmp_folder="ncdc_tmp";
-g_output_folder="ncdc_data";
+g_output_folder="all";
  
 g_remote_host="ftp.ncdc.noaa.gov";
 g_remote_path="pub/data/noaa";
