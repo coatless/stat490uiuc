@@ -24,7 +24,7 @@ hdfs dfs -put file01 /user/rstudio/wordcount/input
 hdfs dfs -put file02 /user/rstudio/wordcount/input
 
 # Java Compiling Option 1
-JAVAC_HADOOP_PATH=$(bin/hadoop classpath)
+JAVAC_HADOOP_PATH=$(hadoop classpath)
 export HADOOP_CLASSPATH=$JAVAC_HADOOP_PATH
 
 mkdir WordCount1
