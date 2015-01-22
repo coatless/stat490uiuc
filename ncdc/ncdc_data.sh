@@ -56,7 +56,7 @@ function process_data {
     gzip -c "$tmp_output_file" >> "$zipped_file"
     echo "Created file: $zipped_file"
  
-    hadoop fs -put - gz/$year.gz
+    hdfs dfs -put - gz/$year.gz
     
 	echo "Put file on hdfs: gz/$year.gz"
 	
