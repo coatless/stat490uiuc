@@ -10,15 +10,15 @@
 ## Objective: Compile MapReduce Job via Java
 #############################
 ## # Obtain Script
-## wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/sample/java_example.sh
+## wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/ch02/java_compile/java_example.sh
 ## chmod u+x java_example.sh
 ## 
 ## # Launch Script
 ## ./java_example.sh
 
-wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/sample/input/file01
-wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/sample/input/file02
-wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/sample/WordCount.java
+wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/ch02/java_compile/input/file01
+wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/ch02/java_compile/input/file02
+wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/ch02/java_compile/WordCount.java
 
 echo "Putting file01 into HDFS..."
 hdfs dfs -put file01 /user/rstudio/wordcount/input
