@@ -10,7 +10,9 @@
 #############################
 ## Initial Release 1.0 -- 01/22/15
 #############################
-## The objective of this file is to download the ncdc weather data.
+## The objective of this file is to download the ncdc weather data directly through NOAA.
+## This avoids the use of Amazon's S3 file storage system. 
+## Therefore, the script will work on virtual boxes given by HDP, Cloudera, and MapR
 #############################
 ## # Obtain Script
 ## wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/ncdc/ncdc_data.sh
@@ -19,7 +21,7 @@
 ## # Run the script
 ## ./ncdc_data.sh <start year> <end year> 
 
-# global parameters
+# Global parameters
 g_tmp_folder="ncdc_tmp";
 g_output_folder="all";
  
@@ -39,6 +41,7 @@ function create_folder {
 function download_data {
     local source_url="ftp://$g_remote_host/$g_remote_path/$1"
     wget -r -c -q --no-parent -P "$g_tmp_folder" "$source_url";
+	echo "Downloading... $1"
 }
  
 # $1: year to process
@@ -51,9 +54,13 @@ function process_data {
     done
     zipped_file="$g_output_folder/$year.gz"
     gzip -c "$tmp_output_file" >> "$zipped_file"
-    echo "created file: $zipped_file"
+    echo "Created file: $zipped_file"
  
-    rm -rf "$local_path"
+    hadoop fs -put - gz/$year.gz
+    
+	echo "Put file on hdfs: gz/$year.gz"
+	
+	rm -rf "$local_path"
     rm "$tmp_output_file"
 }
  
