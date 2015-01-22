@@ -21,7 +21,7 @@ import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.StringUtils;
 
-public class WordCount2 {
+public class WordCount {
 
   public static class TokenizerMapper
        extends Mapper<Object, Text, Text, IntWritable>{
