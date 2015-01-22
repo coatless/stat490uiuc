@@ -20,9 +20,12 @@ wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/sample/input/
 wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/sample/input/file02
 wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/sample/WordCount.java
 
+echo "Putting file01 into HDFS..."
 hdfs dfs -put file01 /user/rstudio/wordcount/input
+echo "Putting file02 into HDFS..."
 hdfs dfs -put file02 /user/rstudio/wordcount/input
 
+echo "JAVA COMPILE OPTION 1..."
 # Java Compiling Option 1
 JAVAC_HADOOP_PATH=$(hadoop classpath)
 export HADOOP_CLASSPATH=$JAVAC_HADOOP_PATH
@@ -36,8 +39,9 @@ hadoop jar wc.jar WordCount /user/rstudio/wordcount/input /user/rstudio/wordcoun
 
 hdfs dfs -cat /user/rstudio/wordcount/output1/part-r-00000 
 
-# Java Compiling Option 2
 
+echo "JAVA COMPILE OPTION 2..."
+# Java Compiling Option 2
 JAVA_TOOLS=$JAVA_HOME/lib/tools.jar
 export HADOOP_CLASSPATH=$JAVA_TOOLS
 mkdir WordCount2
