@@ -9,7 +9,7 @@
 #############################
 ## Examples Uses
 #############################
-## #Obtain Script
+## # Obtain Script
 ## wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/install_scripts/hdp_setup.sh
 ## chmod u+x hdp_setup.sh
 ## 
@@ -170,14 +170,30 @@ if [ "$HPATHS" == true ]; then
 	# Search for file path and take the last one.
 	HADOOP_STREAMING=$(find / -name 'hadoop-streaming*.jar' | grep 'hadoop-mapreduce/hadoop-streaming.*.jar' | tail -n 1)
 	HADOOP_CMD=$(find / -name 'hadoop' | grep '/bin/hadoop' | tail -n 1)
+	
+	HADOOP_EXAMPLES=$(find / -name 'hadoop-mapreduce-examples*.jar' | head -n 1)
 
+	# Conf file
+	HADOOP_CONF='/etc/hadoop/conf'
+	
 	# R Studio Server Path Config
+	echo "RLIB_HOME=$RLIB_HOME" >> $RLIB_HOME/etc/Renviron
 	echo "HADOOP_STREAMING=$HADOOP_STREAMING" >> $RLIB_HOME/etc/Renviron
 	echo "HADOOP_CMD=$HADOOP_CMD" >> $RLIB_HOME/etc/Renviron
+	echo "HADOOP_CONF=$HADOOP_CONF" >> $RLIB_HOME/etc/Renviron
+	echo "HADOOP_EXAMPLES=$HADOOP_EXAMPLES" >> $RLIB_HOME/etc/Renviron
+	echo "JAVAC_HADOOP_PATH=$(hadoop classpath)" >> $RLIB_HOME/etc/Renviron
+	echo "JAVA_TOOLS=$JAVA_HOME/lib/tools.jar" >> $RLIB_HOME/etc/Renviron
+
 	
 	# Terminal R goodies
+	echo "RLIB_HOME=$RLIB_HOME" >> /etc/profile
 	echo "HADOOP_STREAMING=$HADOOP_STREAMING" >> /etc/profile
 	echo "HADOOP_CMD=$HADOOP_CMD" >> /etc/profile
+	echo "HADOOP_CONF=$HADOOP_CONF" >> /etc/profile
+	echo "HADOOP_EXAMPLES=$HADOOP_EXAMPLES" >> /etc/profile
+	echo "JAVAC_HADOOP_PATH=$(hadoop classpath)" >> /etc/profile
+	echo "JAVA_TOOLS=$JAVA_HOME/lib/tools.jar" >> /etc/profile
 	
 fi
 
