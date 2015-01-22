@@ -20,6 +20,9 @@ wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/ch02/java_com
 wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/ch02/java_compile/input/file02
 wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/ch02/java_compile/WordCount.java
 
+echo "Making directory on HDFS..."
+hdfs dfs -mkdir -p wordcount/input
+
 echo "Putting file01 into HDFS..."
 hdfs dfs -put file01 /user/rstudio/wordcount/input
 echo "Putting file02 into HDFS..."
