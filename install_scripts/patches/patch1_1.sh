@@ -38,13 +38,13 @@ if [ -z ${UIUC_IMAGE_VERSION+x} ]; then
 	
 	# Modify environmental variables in /etc/profile to be exported
 	# Finds the first instance of each variable and replaces it with export prefixed to variable name
-	sed -i "0,/RLIB_HOME/s/RLIB_HOME/export RLIB_HOME" /etc/profile
-	sed -i "0,/HADOOP_STREAMING/s/HADOOP_STREAMING/export HADOOP_STREAMING" /etc/profile
-	sed -i "0,/HADOOP_CMD/s/HADOOP_CMD/export HADOOP_CMD" /etc/profile
-	sed -i "0,/HADOOP_CONF/s/HADOOP_CONF/export HADOOP_CONF" /etc/profile
-	sed -i "0,/HADOOP_EXAMPLES/s/HADOOP_EXAMPLES/export HADOOP_EXAMPLES" /etc/profile
-	sed -i "0,/JAVAC_HADOOP_PATH/s/JAVAC_HADOOP_PATH/export JAVAC_HADOOP_PATH" /etc/profile
-	sed -i "0,/JAVA_TOOLS/s/JAVA_TOOLS/export JAVA_TOOLS" /etc/profile
+	sed -i "0,/RLIB_HOME/s/RLIB_HOME/export RLIB_HOME/" /etc/profile
+	sed -i "0,/HADOOP_STREAMING/s/HADOOP_STREAMING/export HADOOP_STREAMING/" /etc/profile
+	sed -i "0,/HADOOP_CMD/s/HADOOP_CMD/export HADOOP_CMD/" /etc/profile
+	sed -i "0,/HADOOP_CONF/s/HADOOP_CONF/export HADOOP_CONF/" /etc/profile
+	sed -i "0,/HADOOP_EXAMPLES/s/HADOOP_EXAMPLES/export HADOOP_EXAMPLES/" /etc/profile
+	sed -i "0,/JAVAC_HADOOP_PATH/s/JAVAC_HADOOP_PATH/export JAVAC_HADOOP_PATH/" /etc/profile
+	sed -i "0,/JAVA_TOOLS/s/JAVA_TOOLS/export JAVA_TOOLS/" /etc/profile
 
 	echo "Adding rstudio user to the allowed SSH user file ... "
 	# Add user to SSH file
