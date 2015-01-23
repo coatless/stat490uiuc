@@ -165,7 +165,8 @@ if [ "$SUDOUSER" == true ]; then
 	
 	# Grant SSH Permission
 	echo -e "\n# SSH for $USER"
-	echo "AllowUsers $USER" >> /etc/ssh/sshd_config
+	# need to protect this...
+	echo "AllowUsers root $USER" >> /etc/ssh/sshd_config
 fi
 
 # Set paths and values for environmental variables

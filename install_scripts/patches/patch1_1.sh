@@ -49,7 +49,7 @@ if [ -z ${UIUC_IMAGE_VERSION+x} ]; then
 	echo "Adding rstudio user to the allowed SSH user file ... "
 	# Add user to SSH file
 	echo -e "\n# SSH for rstudio" >> /etc/ssh/sshd_config
-	echo "AllowUsers rstudio" >> /etc/ssh/sshd_config
+	echo "AllowUsers root rstudio" >> /etc/ssh/sshd_config
 	
 	echo "Removing the hdp_setup.sh script ..."
 	# Remove the hdp_setup.sh script
