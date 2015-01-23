@@ -162,11 +162,15 @@ if [ "$SUDOUSER" == true ]; then
 	
 	# Give user sudo power
 	echo "$USER ALL=(ALL) ALL" >> /etc/sudoers
+	
+	# Grant SSH Permission
+	echo -e "\n# SSH for $USER"
+	echo "AllowUsers $USER" >> /etc/ssh/sshd_config
 fi
 
-# Set paths for RHadoop
+# Set paths and values for environmental variables
 if [ "$HPATHS" == true ]; then
-	echo 'Setting Hadoop paths for RHadoop...' 
+	echo 'Setting environement variables...' 
 
 	# Location of R library
 	RLIB_HOME=$(R RHOME)
@@ -181,16 +185,18 @@ if [ "$HPATHS" == true ]; then
 	HADOOP_CONF='/etc/hadoop/conf'
 	
 	# R Studio Server Path Config
-	echo "RLIB_HOME=$RLIB_HOME" >> $RLIB_HOME/etc/Renviron
-	echo "HADOOP_STREAMING=$HADOOP_STREAMING" >> $RLIB_HOME/etc/Renviron
-	echo "HADOOP_CMD=$HADOOP_CMD" >> $RLIB_HOME/etc/Renviron
-	echo "HADOOP_CONF=$HADOOP_CONF" >> $RLIB_HOME/etc/Renviron
-	echo "HADOOP_EXAMPLES=$HADOOP_EXAMPLES" >> $RLIB_HOME/etc/Renviron
-	echo "JAVAC_HADOOP_PATH=$(hadoop classpath)" >> $RLIB_HOME/etc/Renviron
-	echo "JAVA_TOOLS=$JAVA_HOME/lib/tools.jar" >> $RLIB_HOME/etc/Renviron
+	echo -e "\n# R Studio Server Path Config" >> $RLIB_HOME/etc/Renviron
+	echo "RLIB_HOME='$RLIB_HOME'" >> $RLIB_HOME/etc/Renviron
+	echo "HADOOP_STREAMING='$HADOOP_STREAMING'" >> $RLIB_HOME/etc/Renviron
+	echo "HADOOP_CMD='$HADOOP_CMD'" >> $RLIB_HOME/etc/Renviron
+	echo "HADOOP_CONF='$HADOOP_CONF'" >> $RLIB_HOME/etc/Renviron
+	echo "HADOOP_EXAMPLES='$HADOOP_EXAMPLES'" >> $RLIB_HOME/etc/Renviron
+	echo "JAVAC_HADOOP_PATH='$(hadoop classpath)'" >> $RLIB_HOME/etc/Renviron
+	echo "JAVA_TOOLS='$JAVA_HOME/lib/tools.jar'" >> $RLIB_HOME/etc/Renviron
 
 	
 	# Terminal R goodies
+	echo -e "\n# Terminal R goodies" >> /etc/profile
 	echo "export RLIB_HOME=$RLIB_HOME" >> /etc/profile
 	echo "export HADOOP_STREAMING=$HADOOP_STREAMING" >> /etc/profile
 	echo "export HADOOP_CMD=$HADOOP_CMD" >> /etc/profile
@@ -225,6 +231,10 @@ install_github('RevolutionAnalytics/plyrmr', subdir='pkg', args=c('-–byte-comp
 install.packages(c('bigmemory','foreach','iterators','doMC','doSNOW','itertools'), repos='http://cran.us.r-project.org', INSTALL_opts=c('--byte-compile') )
 EOF
 fi
+
+echo 'Removing the setup file ...'
+
+rm -rf hdp_setup.sh
 
 # Done
 echo 'Done.'
