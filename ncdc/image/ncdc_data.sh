@@ -13,9 +13,10 @@
 ## The objective of this file is to download the ncdc weather data directly through NOAA.
 ## This avoids the use of Amazon's S3 file storage system. 
 ## Therefore, the script will work on virtual boxes given by HDP, Cloudera, and MapR
+## The script mimics the default processing by the book without using hadoop.
 #############################
 ## # Obtain Script
-## wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/ncdc/ncdc_data.sh
+## wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/ncdc/image/ncdc_data.sh
 ## chmod u+x ncdc_data.sh
 ## 
 ## # Run the script
