@@ -22,7 +22,7 @@
 ## # Launch Script
 ## ./patch1_1.sh
 
-echo "Starting Patch1_1 for UIUC HDP Image with UIUC_IMAGE_VERSION=STAT490 Image Version: 1.0"
+echo "Starting Patch1_1 for UIUC HDP Image"
 
 # Is the image version string set?
 if [ -z ${UIUC_IMAGE_VERSION+x} ]; then 
@@ -48,7 +48,7 @@ if [ -z ${UIUC_IMAGE_VERSION+x} ]; then
 
 	echo "Adding rstudio user to the allowed SSH user file ... "
 	# Add user to SSH file
-	echo -e "\n# SSH for rstudio"
+	echo -e "\n# SSH for rstudio" >> /etc/ssh/sshd_config
 	echo "AllowUsers rstudio" >> /etc/ssh/sshd_config
 	
 	echo "Removing the hdp_setup.sh script ..."
