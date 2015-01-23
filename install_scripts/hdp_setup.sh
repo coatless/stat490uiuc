@@ -5,7 +5,7 @@
 ## James Joseph Balamuta
 ## james.balamuta@gmail.com
 #############################
-## Initial Release 1.0 -- 01/20/15
+## Initial Release 1.1 -- 01/23/15
 #############################
 ## Examples Uses
 #############################
@@ -92,6 +92,10 @@ while [ $# -gt 0 ]; do
 	esac
 	shift
 done
+
+# Write image version to bash
+echo "export UIUC_IMAGE_VERSION=1.1_jjb" >> /etc/profile
+
 
 # Install Applications
 if [ "$SSUITE" == true ]; then
@@ -187,13 +191,13 @@ if [ "$HPATHS" == true ]; then
 
 	
 	# Terminal R goodies
-	echo "RLIB_HOME=$RLIB_HOME" >> /etc/profile
-	echo "HADOOP_STREAMING=$HADOOP_STREAMING" >> /etc/profile
-	echo "HADOOP_CMD=$HADOOP_CMD" >> /etc/profile
-	echo "HADOOP_CONF=$HADOOP_CONF" >> /etc/profile
-	echo "HADOOP_EXAMPLES=$HADOOP_EXAMPLES" >> /etc/profile
-	echo "JAVAC_HADOOP_PATH=$(hadoop classpath)" >> /etc/profile
-	echo "JAVA_TOOLS=$JAVA_HOME/lib/tools.jar" >> /etc/profile
+	echo "export RLIB_HOME=$RLIB_HOME" >> /etc/profile
+	echo "export HADOOP_STREAMING=$HADOOP_STREAMING" >> /etc/profile
+	echo "export HADOOP_CMD=$HADOOP_CMD" >> /etc/profile
+	echo "export HADOOP_CONF=$HADOOP_CONF" >> /etc/profile
+	echo "export HADOOP_EXAMPLES=$HADOOP_EXAMPLES" >> /etc/profile
+	echo "export JAVAC_HADOOP_PATH=$(hadoop classpath)" >> /etc/profile
+	echo "export JAVA_TOOLS=$JAVA_HOME/lib/tools.jar" >> /etc/profile
 	
 fi
 
