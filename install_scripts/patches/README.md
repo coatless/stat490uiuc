@@ -1,0 +1,38 @@
+# Resolved Issues
+
+## Patch 1.1 - 1/23/15
+
+### Identified Issues
+We recently released a patch to address four issues: 
+
+1. Lack of SSH support for `rstudio`
+2. Lack of `UIUC_IMAGE_VERSION` variable.
+3. Environmental variables not being accessible by children of the current process.
+4. Removal of installation script and patch scripts.  
+
+### Affected Version
+These issues only affect users on `UIUC_IMAGE_VERSION='STAT490 Image Version: 1.0'`. 
+To tell if you are on this image, type into shell:
+
+```{r uiuc_image_version, engine='bash'}
+echo $UIUC_IMAGE_VERSION
+```
+
+If the returned value is blank, you are on `STAT490 Image Version: 1.0`.
+
+If the returned value is equal to `STAT490 Image Version: 1.1`, then you have already applied the patch
+
+If the returned value is greater than `STAT490 Image Version: 1.1`, then you are living in the future and should share with me the future code that I will write.
+
+### Applying the Patch
+
+To apply the patch, login as root and run:
+```{r bash_patch, engine='bash'}
+# Obtain Script
+wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/install_scripts/patches/patch1_1.sh
+# Set run permissions
+chmod u+x patch1_1.sh
+
+# Launch Script
+./patch1_1.sh
+```
