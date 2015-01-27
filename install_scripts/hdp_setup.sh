@@ -33,7 +33,7 @@
 # EMR Install?
 EMRINSTALL=false
 
-# For installing SSUITE: R, vim, and curl-devel
+# For installing: R, vim, and 
 RINSTALL=false
 VIMINSTALL=false
 
@@ -49,7 +49,7 @@ USERPW='rstudio'
 SUDOUSER=false
 SSHUSER=false
 
-# For installing RHadoop ecosystem
+# For installing RHadoop ecosystem also installs curl-devel
 HPATHS=false
 RHADOOP=false
 RHPC=false
@@ -172,12 +172,12 @@ if [ "$RSTUDIO" == true -a "$IS_MASTER" == true ]; then
 	sudo rstudio-server verify-installation
 	
 	# Change port away from default 8787
-	if ["$RSTUDIOPORT" != 8787]; then 
+	if [ "$RSTUDIOPORT" != 8787 ]; then 
 		echo "www-port=$RSTUDIOPORT" >> /etc/rstudio/rserver.conf
 	fi
 	
 	# Change web address away from 0.0.0.0 to something more secure
-	if [["$RSTUDIOADDRESS" != 0.0.0.0]]; then 
+	if [[ "$RSTUDIOADDRESS" != 0.0.0.0 ]]; then 
 		echo "www-address=$RSTUDIOADDRESS" >> /etc/rstudio/rserver.conf
 	fi
 	
