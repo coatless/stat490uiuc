@@ -115,7 +115,7 @@ done
 
 # EMR Master Check
 IS_MASTER=true
-if ["$EMRINSTALL" == true ]; then
+if [ "$EMRINSTALL" == true ]; then
 
 	echo "Installing on EMR..."
 	if [ -f /mnt/var/lib/info/instance.json ]; then 
