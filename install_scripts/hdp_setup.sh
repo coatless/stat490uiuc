@@ -14,7 +14,7 @@
 ## chmod u+x hdp_setup.sh
 ## 
 ## # Default Setup
-## ./hdp_setup.sh --ssuite --rstudio --createuser --sudouser --sshuser --hpaths --rhadoop
+## ./hdp_setup.sh --rinstall --viminstall --rstudio --createuser --sudouser --sshuser --hpaths --rhadoop --rhpc
 ## # Installs R and RStudio Server (manual check needed for new releases)
 ## # Creates a new user: rstudio with password: rstudio
 ## # Sets up hadoop paths and install RHadoop (latest)
@@ -113,17 +113,6 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
-# Environmental variable set yet?
-if [ -z ${UIUC_IMAGE_VERSION+x} ]; then 
-	echo "First run detected .... "
-	echo "Adding UIUC_IMAGE_VERSION environmental variable .... "
-	# Add in a new environmental variable to indicate image version
-	sudo sh -c "echo \"UIUC_IMAGE_VERSION='STAT490 Image Version: 1.1'\" >> $(R RHOME)/etc/Renviron"
-	sudo sh -c "echo \"export UIUC_IMAGE_VERSION='STAT490 Image Version: 1.1'\" >> /etc/profile"
-else 
-	echo "The UIUC_IMAGE_VERSION variable has already been set to $UIUC_IMAGE_VERSION"; 
-fi
-
 # EMR Master Check
 IS_MASTER=true
 if ["$EMRINSTALL" == true ]; then
@@ -149,6 +138,17 @@ if [ "$RINSTALL" == true ]; then
 	echo 'Installing R suite...' 
 
 	sudo yum install -y -q R
+fi
+
+# Environmental variable set yet?
+if [ -z ${UIUC_IMAGE_VERSION+x} ]; then 
+	echo "First run detected .... "
+	echo "Adding UIUC_IMAGE_VERSION environmental variable .... "
+	# Add in a new environmental variable to indicate image version
+	sudo sh -c "echo \"UIUC_IMAGE_VERSION='STAT490 Image Version: 1.1'\" >> $(R RHOME)/etc/Renviron"
+	sudo sh -c "echo \"export UIUC_IMAGE_VERSION='STAT490 Image Version: 1.1'\" >> /etc/profile"
+else 
+	echo "The UIUC_IMAGE_VERSION variable has already been set to $UIUC_IMAGE_VERSION"; 
 fi
 
 # Install vim
