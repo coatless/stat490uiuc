@@ -261,7 +261,7 @@ if [ "$HPATHS" == true ]; then
 	HADOOP_STREAMING=$(sudo find / -name 'hadoop-streaming.jar' | tail -n 1)
 	HADOOP_CMD=$(sudo find / -name 'hadoop' | grep '/bin/hadoop' | tail -n 1)
 	
-	HADOOP_EXAMPLES=$(sudo find / -name 'hadoop-*examples.jar' | grep 'hadoop.*/hadoop-*examples.jar' head -n 1)
+	HADOOP_EXAMPLES=$(sudo find / -name 'hadoop-*examples.jar' | grep 'hadoop.*/hadoop-.*examples.jar' | head -n 1)
 
 	# Conf file
 	HADOOP_CONF=$(sudo find / -name 'conf' | grep 'hadoop/conf')
