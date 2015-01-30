@@ -128,8 +128,8 @@ if [ "$EMRINSTALL" == true ]; then
 	# EMR permission fix
 	sudo chmod 777 -R /mnt/var/lib/hadoop/tmp
 
-	# Java compilation fix
-	sudo R CMD javareconf
+	# Java compilation fix not needed, screws up path.
+	#sudo R CMD javareconf
 fi
 
 
@@ -258,13 +258,13 @@ if [ "$HPATHS" == true ]; then
 	RLIB_HOME=$(R RHOME)
 
 	# Search for file path and take the last one.
-	HADOOP_STREAMING=$(sudo find / -name 'hadoop-streaming*.jar' | grep 'hadoop-mapreduce/hadoop-streaming.*.jar' | tail -n 1)
+	HADOOP_STREAMING=$(sudo find / -name 'hadoop-streaming.jar' | tail -n 1)
 	HADOOP_CMD=$(sudo find / -name 'hadoop' | grep '/bin/hadoop' | tail -n 1)
 	
-	HADOOP_EXAMPLES=$(sudo find / -name 'hadoop-mapreduce-examples*.jar' | head -n 1)
+	HADOOP_EXAMPLES=$(sudo find / -name 'hadoop-*examples.jar' | grep 'hadoop.*/hadoop-*examples.jar' head -n 1)
 
 	# Conf file
-	HADOOP_CONF='/etc/hadoop/conf'
+	HADOOP_CONF=$(sudo find / -name 'conf' | grep 'hadoop/conf')
 	
 	# two possible implementations
 	# Use tee
@@ -280,7 +280,6 @@ if [ "$HPATHS" == true ]; then
 	sudo sh -c "echo \"JAVAC_HADOOP_PATH='$(hadoop classpath)'\" >> $RLIB_HOME/etc/Renviron"
 	sudo sh -c "echo \"JAVA_TOOLS='$JAVA_HOME/lib/tools.jar'\" >> $RLIB_HOME/etc/Renviron"
 
-	
 	# Terminal R goodies
 	sudo sh -c "echo -e \"\n# Terminal R goodies\" >> /etc/profile"
 	sudo sh -c "echo \"export RLIB_HOME=$RLIB_HOME\" >> /etc/profile"
