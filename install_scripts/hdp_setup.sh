@@ -264,7 +264,7 @@ if [ "$HPATHS" == true ]; then
 	HADOOP_EXAMPLES=$(sudo find / -name 'hadoop-*examples.jar' | grep 'hadoop.*/hadoop-.*examples.jar' | head -n 1)
 
 	# Conf file
-	HADOOP_CONF=$(sudo find / -name 'conf' | grep 'hadoop/conf')
+	HADOOP_CONF=$(sudo find / -name 'conf' | grep 'hadoop/conf' | tail -n 1)
 	
 	# two possible implementations
 	# Use tee
