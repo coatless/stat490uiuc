@@ -194,14 +194,14 @@ if [ "$RSTUDIO" == true -a "$IS_MASTER" == true ]; then
 fi
 
 if [ "$CREATEUSER" == true ]; then
-	echo 'Trying to creating a user...'
+	echo "Trying to creating user $USER ..."
 	# Does the user exist? 
 	if id -u $USER >/dev/null 2>&1; then
-		echo 'User already exists.'
+		echo "User $USER already exists."
 		echo 'If you are trying to change the password, use terminal command:'
 		echo 'echo "USER:USERPW" | chpasswd'
 	else
-		echo 'User does not exist...'
+		echo "User $USER does not exist..."
 		echo 'Adding user and initializing log directory...' 
 		# Create user
 		sudo useradd $USER
@@ -219,7 +219,7 @@ fi
 
 # Give user sudo power
 if [ "$SUDOUSER" == true ]; then
-	echo 'Granting sudo user...'
+	echo "Granting sudo permissions for user $USER..."
 	
 	# Does the user already have sudo access? Y/N
 	if sudo grep -q "$USER ALL=(ALL) ALL" /etc/sudoers; then
@@ -232,7 +232,7 @@ fi
 
 # Grant SSH Permission
 if [ "$SSHUSER" == true ]; then	
-	echo 'Granting SSH permissions user...'
+	echo "Granting SSH permissions for user $USER..."
 	
 	# optimize?
 	if sudo grep -q "AllowUsers root" /etc/ssh/sshd_config; then
