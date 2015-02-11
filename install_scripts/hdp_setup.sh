@@ -242,7 +242,7 @@ if [ "$SSHUSER" == true ]; then
 			sudo sed -i "0,/AllowUsers root/s/AllowUsers root/AllowUsers root $USER/" /etc/ssh/sshd_config
 		fi
 	else
-		sudo sh -c "echo \"\n# SSH Allowed Users\" >> /etc/ssh/sshd_config"
+		sudo sh -c "echo -e \"\n# SSH Allowed Users\" >> /etc/ssh/sshd_config"
 		sudo sh -c "echo \"AllowUsers root hadoop $USER\" >> /etc/ssh/sshd_config"
 		sudo sh -c "echo \"ServerAliveInterval 60\" >> /etc/ssh/ssh_config"
 	fi
