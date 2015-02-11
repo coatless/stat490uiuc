@@ -244,7 +244,7 @@ if [ "$SSHUSER" == true ]; then
 	else
 		sudo sh -c "echo \"\n# SSH Allowed Users\" >> /etc/ssh/sshd_config"
 		sudo sh -c "echo \"AllowUsers root hadoop $USER\" >> /etc/ssh/sshd_config"
-		sudo sh -c "echo \"ServerAliveInterval 60\" >> /etc/ssh/sshd_config"
+		sudo sh -c "echo \"ServerAliveInterval 60\" >> /etc/ssh/ssh_config"
 	fi
 	
 fi
