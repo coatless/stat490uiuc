@@ -44,8 +44,12 @@ if [[ -n ${UIUC_IMAGE_VERSION+x} && "$UIUC_IMAGE_VERSION" == "STAT490 Image Vers
 	sudo rm -rf /usr/bin/pip  
 	sudo rm -rf /usr/bin/easy_install  
 
+	echo "Downloading python..."
+	
 	# Download the latest version of python
 	wget -q https://www.python.org/ftp/python/2.7.9/Python-2.7.9.tar.xz
+
+	echo "Extracting python..."
 
 	# Extract python
 	tar -xf Python-2.7.9.tar.xz
@@ -59,7 +63,7 @@ if [[ -n ${UIUC_IMAGE_VERSION+x} && "$UIUC_IMAGE_VERSION" == "STAT490 Image Vers
 	sudo ./configure  
 
 	# Perform all the make operations
-	echo 'Making files...' 
+	echo 'Using the make file created by configure...' 
 
 	make -s
 	
@@ -98,14 +102,10 @@ if [[ -n ${UIUC_IMAGE_VERSION+x} && "$UIUC_IMAGE_VERSION" == "STAT490 Image Vers
 	# Verify new version is installed
 	python --version
 
-	# Old vs. New Python
-	line_old='python'
-	line_new='python2.6'
-
 	echo 'Modifying yum to use python v2.6.6 instead of v2.7.9...' 
 
 	# Replace config so yum doesn't complain
-	sudo sed -i "0,/$line_old/s//$line_new/" /usr/bin/yum  
+	sudo sed -i "0,/python/s//python2.6/" /usr/bin/yum  
 
 	echo 'Installing ImportError: no module sh error fix...'
 		
