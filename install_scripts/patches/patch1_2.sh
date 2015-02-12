@@ -20,8 +20,7 @@
 ## # Launch Script
 ## ./patch1_2.sh
 
-
-if [ -z ${UIUC_IMAGE_VERSION+x} -a "$UIUC_IMAGE_VERSION" -eq "STAT490 Image Version: 1.1" ]; then 
+if [[ -n ${UIUC_IMAGE_VERSION+x} && "$UIUC_IMAGE_VERSION" == "STAT490 Image Version: 1.1" ]]; then 
 	
 	echo "Changing into user home directory to install..."
 
