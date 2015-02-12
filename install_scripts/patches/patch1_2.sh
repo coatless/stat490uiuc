@@ -21,7 +21,7 @@
 ## ./patch1_2.sh
 
 
-if [ -z ${UIUC_IMAGE_VERSION+x} -a "$UIUC_IMAGE_VERSION" -eq "STAT490 Image Version: 1.1"]; then 
+if [ -z ${UIUC_IMAGE_VERSION+x} -a "$UIUC_IMAGE_VERSION" -eq "STAT490 Image Version: 1.1" ]; then 
 	
 	echo "Changing into user home directory to install..."
 
@@ -127,6 +127,9 @@ if [ -z ${UIUC_IMAGE_VERSION+x} -a "$UIUC_IMAGE_VERSION" -eq "STAT490 Image Vers
 
 	rm -rf ~/Python-2.7.9.tar.xz
 	rm -rf ~/Python-2.7.9
+	
+	echo 'Congratulations! You have been upgraded to UIUC_IMAGE_VERSION="STAT490 Image Version: 1.2"'
+
 else 
 	echo 'This patch is only meant to modify UIUC_IMAGE_VERSION="STAT490 Image Version: 1.1"'
 	echo 'Please upgrade to 1.1 from 1.0 before trying to patch this version'
@@ -136,6 +139,4 @@ echo "Tidying up by removing the patch1_2.sh script ..."
 
 # Remove the patch1_2.sh script
 rm -rf patch1_2.sh
-
-echo 'Congratulations! You have been upgraded to UIUC_IMAGE_VERSION="STAT490 Image Version: 1.2"'
 
