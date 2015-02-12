@@ -20,7 +20,9 @@
 ## # Launch Script
 ## ./patch1_2.sh
 
-if [[ -n ${UIUC_IMAGE_VERSION+x} && "$UIUC_IMAGE_VERSION" == "STAT490 Image Version: 1.1" ]]; then 
+echo "Checking to see if it is possible to update python on UIUC Big Data Image..."
+
+if [[ -n "$UIUC_IMAGE_VERSION" && "$UIUC_IMAGE_VERSION" == "STAT490 Image Version: 1.1" ]]; then 
 	
 	echo "Changing into user home directory to install..."
 
