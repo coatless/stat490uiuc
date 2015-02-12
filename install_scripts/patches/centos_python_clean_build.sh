@@ -59,11 +59,11 @@ sudo ln -s /usr/local/bin/python2.7 /usr/bin/python
 # Install easy_setup
 wget https://bootstrap.pypa.io/ez_setup.py
 python ez_setup.py
-sudo ln -s /usr/local/bin/easy_install2.7 /usr/bin/python
+sudo ln -s /usr/local/bin/easy_install /usr/bin/easy_install
 
 # Install pip
 easy_install pip
-sudo ln -s /usr/local/bin/pip2.7 /usr/bin/pip  
+sudo ln -s /usr/local/bin/pip /usr/bin/pip  
 
 # Verify new version is installed
 python --version
