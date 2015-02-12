@@ -33,7 +33,6 @@ yum install -y zlib-devel bzip2-devel openssl-devel xz-libs wget python-imaging 
 sudo rm -rf /usr/bin/python
 sudo rm -rf /usr/bin/pip  
 sudo rm -rf /usr/bin/easy_install  
-sudo rm -rf /usr/bin/python  
 
 # Download the latest version of python
 wget https://www.python.org/ftp/python/2.7.9/Python-2.7.9.tar.xz
