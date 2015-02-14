@@ -1,5 +1,40 @@
 # Resolved Issues
 
+## Patch 1.2 - 2/13/15
+
+### Identified Issues
+We recently released a patch to address the system version of python being v2.6.6. 
+The patch upgrades the python distribution on the image to v2.7.9 while still maintaining the CentOS 6.6 package manager yum's dependency on python v2.6.6.
+
+### Affected Version
+These issues only affect users on `UIUC_IMAGE_VERSION='STAT490 Image Version: 1.1'`. 
+To tell if you are on this image, type into shell:
+
+```{r uiuc_image_version, engine='bash'}
+echo $UIUC_IMAGE_VERSION
+```
+
+If the returned value is blank, you are on `STAT490 Image Version: 1.0` and must apply `patch1_1.sh` before continuing.
+
+If the returned value is equal to `STAT490 Image Version: 1.1`, then you can apply the patch.
+
+If the returned value is greater than or equal to `STAT490 Image Version: 1.2`, then you have already applied the patch.
+
+
+### Applying the Patch
+
+To apply the patch, login as root and run:
+```{r bash_patch, engine='bash'}
+# Obtain Script
+wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/install_scripts/patches/patch1_2.sh
+# Set run permissions
+chmod u+x patch1_2.sh
+
+# Launch Script
+./patch1_2.sh
+```
+
+
 ## Patch 1.1 - 1/23/15
 
 ### Identified Issues
