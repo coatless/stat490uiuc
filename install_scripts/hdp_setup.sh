@@ -13,7 +13,10 @@
 ## wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/install_scripts/hdp_setup.sh
 ## chmod u+x hdp_setup.sh
 ## 
-## # Default Setup
+## # Build Image
+## ./hdp_setup.sh --buildimage
+##
+## # Default Setup (same as build image flag)
 ## ./hdp_setup.sh --rinstall --viminstall --rstudio --createuser --sudouser --sshuser --hpaths --rhadoop --rhpc
 ## # Installs R and RStudio Server (manual check needed for new releases)
 ## # Creates a new user: rstudio with password: rstudio
@@ -57,6 +60,17 @@ RHPC=false
 # Change default values to specified.
 while [ $# -gt 0 ]; do
 	case "$1" in
+		--buildimage)
+			RINSTALL=true
+			VIMINSTALL=true
+			RSTUDIO=true
+		    CREATEUSER=true
+			SUDOUSER=true
+			SSHUSER=true
+			HPATHS=true
+			RHADOOP=true
+			RHPC=true
+			;;				
 		--emrinstall)
 			EMRINSTALL=true
 			;;
@@ -145,8 +159,8 @@ if [ -z ${UIUC_IMAGE_VERSION+x} ]; then
 	echo "First run detected .... "
 	echo "Adding UIUC_IMAGE_VERSION environmental variable .... "
 	# Add in a new environmental variable to indicate image version
-	sudo sh -c "echo \"UIUC_IMAGE_VERSION='STAT490 Image Version: 1.1'\" >> $(R RHOME)/etc/Renviron"
-	sudo sh -c "echo \"export UIUC_IMAGE_VERSION='STAT490 Image Version: 1.1'\" >> /etc/profile"
+	sudo sh -c "echo \"UIUC_IMAGE_VERSION='STAT490 Image Version: 1.2'\" >> $(R RHOME)/etc/Renviron"
+	sudo sh -c "echo \"export UIUC_IMAGE_VERSION='STAT490 Image Version: 1.2'\" >> /etc/profile"
 else 
 	echo "The UIUC_IMAGE_VERSION variable has already been set to $UIUC_IMAGE_VERSION"; 
 fi
@@ -322,9 +336,121 @@ if [ "$RHPC" == true ]; then
 	echo 'Installing HPC packages ...'
 	sudo R --no-save << EOF
 # Installs some wonderful HPC Packages
-install.packages(c('bigmemory','foreach','iterators','doMC','doSNOW','itertools'), repos='http://cran.us.r-project.org', INSTALL_opts=c('--byte-compile') )
+install.packages(c('bigmemory','ff,'ffbase','foreach','iterators','doMC','doSNOW','itertools'), repos='http://cran.us.r-project.org', INSTALL_opts=c('--byte-compile') )
 EOF
 fi
+
+
+# Make sure python is 2.7 or later
+PYTHON_OK=`python -c 'import sys
+print (sys.version_info >= (2, 7) and "1" or "0")'`
+
+echo "Checking system python version..."
+if [ "$PYTHON_OK" = '0' ]; then
+	echo "Python version was less than 2.7.9, installing v2.7.9...."
+	
+	echo "Changing into user home directory to install..."
+
+	cd ~/
+	
+	echo "Installing development tools to compile python with..."
+	# Install all of the development tools to combat the _curses issue
+	yum groupinstall -y -q development
+
+	echo "Installing Modules required to compile python..."
+	# Missing python libs
+	yum install -y -q zlib-devel bzip2-devel openssl-devel xz-libs wget python-imaging ncurses-devel ncurses
+
+	# Upgrade the kernel... This breaks something.
+	# yum upgrade -y kernel
+
+	echo 'Removing the old python installs in bin...' 
+
+	# Remove old python bin.
+	sudo rm -rf /usr/bin/python
+	sudo rm -rf /usr/bin/pip  
+	sudo rm -rf /usr/bin/easy_install  
+
+	echo "Downloading python..."
+	
+	# Download the latest version of python
+	wget -q https://www.python.org/ftp/python/2.7.9/Python-2.7.9.tar.xz
+
+	echo "Extracting python..."
+
+	# Extract python
+	tar -xf Python-2.7.9.tar.xz
+
+	# Switch into the python directory
+	cd ~/Python-2.7.9  
+
+	echo 'Configuring python ssssssssssssssssss...' 
+
+	# Run the configure script
+	sudo ./configure  
+
+	# Perform all the make operations
+	echo 'Using the make file created by configure...' 
+
+	make -s
+	
+	echo 'Making installing the made files...' 
+
+	make -s install 
+
+	echo 'Cleaning the made files...' 
+
+	make -s clean
+	
+	echo 'Cleaning the dist made files...' 
+
+	make -s distclean
+
+	echo 'Creating a symbolic link for python in /usr/bin/ for shell access...' 
+
+	# Create a symbolic link
+	sudo ln -s /usr/local/bin/python2.7 /usr/bin/python
+
+	echo 'Installing easy_setup and placing a symbolic link...' 
+
+	# Install easy_setup
+	wget -q https://bootstrap.pypa.io/ez_setup.py
+	python ez_setup.py
+	sudo ln -s /usr/local/bin/easy_install /usr/bin/easy_install
+
+	echo 'Installing pip using easy_setup and placing a symbolic link...' 
+
+	# Install pip
+	easy_install -q pip
+	sudo ln -s /usr/local/bin/pip /usr/bin/pip  
+
+	echo 'Checking to see if new python version is installed...' 
+
+	# Verify new version is installed
+	python --version
+
+	echo 'Modifying yum to use python v2.6.6 instead of v2.7.9...' 
+
+	# Replace config so yum doesn't complain
+	sudo sed -i "0,/python/s//python2.6/" /usr/bin/yum  
+
+	echo 'Installing ImportError: no module sh error fix...'
+		
+	# Resolves the sh load module error
+	sudo pip install -q websocket-client
+	sudo pip install -q --user sh
+		
+	echo "Changing into user home directory to remove install files..."
+
+	cd ~/
+	
+	echo "Removing python install files and install directory..."
+
+	rm -rf ~/Python-2.7.9.tar.xz
+	rm -rf ~/Python-2.7.9
+	
+fi
+
 
 echo '[tidying] Removing the setup file ...'
 
