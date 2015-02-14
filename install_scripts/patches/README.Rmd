@@ -3,7 +3,7 @@
 ## Patch 1.2 - 2/13/15
 
 ### Identified Issues
-We recently released a patch to address the system verison of python being v2.6.6. 
+We recently released a patch to address the system version of python being v2.6.6. 
 The patch upgrades the python distribution on the image to v2.7.9 while still maintaining the CentOS 6.6 package manager yum's dependency on python v2.6.6.
 
 ### Affected Version
