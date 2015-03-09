@@ -8,7 +8,8 @@
 ## Initial Release 1.0 -- 03/06/15
 #############################
 ## The objective of this file is to download the airlines data set through stat-computing.org
-## The script mimics the default processing by the book without using hadoop.
+## The script will inflate the .bz2 archive.
+## Furthermore, the script will create a master archive called airlines.csv containing all years requested.
 #############################
 ## # Obtain Script
 ## wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/airlines/airlines_data.sh
@@ -43,10 +44,15 @@ function download_data {
     wget "$source_url" -P "$g_tmp_folder";
 }
 
+# $1: year to unzip, append
 function process_data {
+
+	echo "Unzipping... $1"
+
 	# unzip the files
 	bzip2 -d $g_tmp_folder/$1$g_file_format$g_zip_format
 	
+	echo "Appending... $1 to $g_output_file"
 	# Obtain the headers (creates new file)
 	if [ $1 -eq $start_year ]; then
 		head -1 $g_tmp_folder/$1$g_file_format > $g_output_file
