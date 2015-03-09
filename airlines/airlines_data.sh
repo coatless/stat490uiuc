@@ -40,7 +40,7 @@ function create_folder {
 function download_data {
     local source_url="$g_remote_host/$g_remote_path/$1"
 	echo "Downloading... $1"
-    wget -O "$g_tmp_folder" "$source_url";
+    wget "$source_url" -P "$g_tmp_folder";
 }
 
 function process_data {
