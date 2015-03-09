@@ -31,25 +31,25 @@ g_output_file="airlines_clean.csv";
 # Handles data cleaning for years 2004 - 2008
 # Removes lines
 function clean_ext {
-	cut -d "," -f1- | awk -F, `(!/NA/) \
+	cut -d "," -f1- $g_input_file | awk -F, `(!/NA/) \
 	{ \
 		if(length($5)==3 && substr($5,2,2)<=59) { \
 			print $1","$2","$3","$4","substr($5,1,1)","$6","$7","$8","$9","$10","$11","$12","$13","$14","$15","$16","$17","$18","$19","$20","$21","$22","$23","$24","$25","$26","$27","$28","$29"\n" \
 		} else if(length($5)==4 && substr($5,1,2)<=24 && substr($5,3,2)<=59) { \
 			print $1","$2","$3","$4","substr($5,1,2)","$6","$7","$8","$9","$10","$11","$12","$13","$14","$15","$16","$17","$18","$19","$20","$21","$22","$23","$24","$25","$26","$27","$28","$29"\n" \
 		} \ 
-	}` $g_input_file > $g_output_file
+	}`  > $g_output_file
 }
  
 # Handles data cleaning for years 1987 - 2003
 # This function will truncate the non-used variables
 function clean_sm {
-	cut -d "," -f1-23,25 | awk -F, `(!/NA/) \
+	cut -d "," -f1-23,25 $g_input_file | awk -F, `(!/NA/) \
 	{ \
 		if(length($5)==3 && substr($5,2,2)<=59) { \
 			print $1","$2","$3","$4","substr($5,1,1)","$6","$7","$8","$9","$10","$11","$12","$13","$14","$15","$16","$17","$18","$19","$20","$21","$22","$23","$24"\n" \
 		} else if(length($5)==4 && substr($5,1,2)<=24 && substr($5,3,2)<=59) { \
 			print $1","$2","$3","$4","substr($5,1,2)","$6","$7","$8","$9","$10","$11","$12","$13","$14","$15","$16","$17","$18","$19","$20","$21","$22","$23","$24"\n" \
 		} \ 
-	}` $g_input_file > $g_output_file
+	}` > $g_output_file
 }
