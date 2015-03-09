@@ -21,8 +21,8 @@
 g_tmp_folder="airlines_tmp";
 g_output_file="airlines.csv";
 
-g_file_format=".csv"
-g_zip_format=".bz2"
+g_file_format=".csv";
+g_zip_format=".bz2";
  
 g_remote_host="http://stat-computing.org";
 g_remote_path="dataexpo/2009";
@@ -39,8 +39,8 @@ function create_folder {
 # $1: year to download
 function download_data {
     local source_url="$g_remote_host/$g_remote_path/$1"
-    wget -r -c -q --no-parent -P "$g_tmp_folder" "$source_url";
 	echo "Downloading... $1"
+    wget -O "$g_tmp_folder" "$source_url";
 }
 
 function process_data {
