@@ -17,10 +17,10 @@
 ## wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/airlines/process_airlines.sh
 ## chmod u+x process_airlines.sh
 ## 
-## # Run the script
+## # handles data cleaning for years 2004 - 2008
 ## ./process_airlines.sh clean_ext
 ##
-## # Run the script
+## # handles data cleaning for years 1987 - 2003
 ## ./process_airlines.sh clean_sm
 
 

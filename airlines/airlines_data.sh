@@ -20,6 +20,9 @@
 # Global parameters
 g_tmp_folder="airlines_tmp";
 g_output_file="airlines.csv";
+
+g_file_format=".csv"
+g_zip_format=".bz2"
  
 g_remote_host="http://stat-computing.org";
 g_remote_path="dataexpo/2009";
@@ -38,6 +41,19 @@ function download_data {
     local source_url="$g_remote_host/$g_remote_path/$1"
     wget -r -c -q --no-parent -P "$g_tmp_folder" "$source_url";
 	echo "Downloading... $1"
+}
+
+function process_data {
+	# unzip the files
+	bzip2 -d $g_tmp_folder/$1$g_file_format$g_zip_format
+	
+	# Obtain the headers (creates new file)
+	if [ $1 -eq $start_year ]; then
+		head -1 $g_tmp_folder/$1$g_file_format > $g_output_file
+	fi
+	
+	# Append data after the header (e.g. start on line 2)
+	tail --lines=+2 -q $g_tmp_folder/$1$g_file_format >> $g_output_file
 }
  
 # $1 - start year
@@ -61,21 +77,14 @@ function main {
 	for year in `seq $start_year $finish_year`; do
         
 		# Download the data
-		download_data $year.csv
+		download_data $year$g_file_format$g_zip_format
         local download_status=$?
         if [ $download_status -ne 0 ]; then
             >&2 echo "Could not download data for year $year. Status code: $download_status"
         fi
 		
 		# Append Data
-		
-		# Obtain the headers (creates new file)
-		if [ $year -eq $start_year ]; then
-			head -1 $g_tmp_folder/$year.csv > $g_output_file
-		fi
-		
-		# Append data after the header (e.g. start on line 2)
-		tail --lines=+2 -q $g_tmp_folder/$year.csv >> $g_output_file
+		process_data $year
     done
 	
 	# Delete 
