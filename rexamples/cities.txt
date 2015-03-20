@@ -1,0 +1,7 @@
+CA	San Francisco	3,273,190
+CO	Denver	634,265
+OH	Athens	23,832
+GA	Atlanta	443,775
+TN	Chatanooga	167,674
+CA	San Jose	984,299
+OH	Columbus	797,434
