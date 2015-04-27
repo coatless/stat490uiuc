@@ -1,13 +1,41 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #############################
 ## hdp_setup.sh
 #############################
 ## James Joseph Balamuta
 ## james.balamuta@gmail.com
 #############################
-## Initial Release 1.1 -- 01/23/15
+## Initial Release 1.3 -- 04/27/15
 #############################
-## Examples Uses
+## The script assumes that the operating system is CentOS (e.g. RHEL-based)
+## If you are trying to run this underneath Ubuntu (e.g. Debian-based), you will have to switch
+## the yum installs to apt-get. Even then, you probably will have to find os specific package names.
+##
+## The script will install the following analytical environment:
+## R, R Studio, RHadoop Packages, and HPC R Packages
+##
+## Regarding the RStudio install, you will probably need to update the version number
+## used in the script. As of 04/27/15, the version is: 0.98.1103
+## Change the default value given for RSTUDIOVERSION under the "Install R Studio Heading"
+##
+## The script will also create and add a new user (default: rstudio, rstudio)
+## Then will authorize the user to remotely access the image.
+## And finally, the script will give sudo permissions to the user. 
+##
+## In addition, the script attempts to automatically detect the necessary paths for the environmental variables.
+## 
+## The high performance computing (HPC) packages installed are:
+## bigmemory = C++ large matrix structure used as the basis for big* packages. 
+## ff + ffbase = file based system for loading large data into R and manipulating it.
+## foreach = new for loop that enables parallelization
+## iterators = transverse lists one at a time.
+## do* = * adapter for parallelization packages (parallel, multicore, snow) to use with foreach loop
+##
+## The script attempts to validate Python >= 2.7.9
+## If the version is not current, it'll replace the existing install.
+##  
+#############################
+## Examples Use
 #############################
 ## # Obtain Script
 ## wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/install_scripts/hdp_setup.sh
@@ -23,7 +51,7 @@
 ## # Sets up hadoop paths and install RHadoop (latest)
 ##
 ## # Complex Setup
-## ./hdp_setup.sh --ssuite --rstudio --rstudio-port=8008 --rstudio-address=127.0.0.1 --createuser --user=james --user-pw=nottelling --sudouser --sshuser --hpaths --rhadoop
+## ./hdp_setup.sh --ssuite --rstudio --rstudio-version=0.98.1103 --rstudio-port=8008 --rstudio-address=127.0.0.1 --createuser --user=james --user-pw=nottelling --sudouser --sshuser --hpaths --rhadoop
 ## # All of the default actions
 ## # Changes RStudio Server config to different values
 ## # Different user account is created 
@@ -33,15 +61,19 @@
 
 # List of supported options with default values
 
+# UIUC Image Version ID
+UIUC_VERSION=1.3
+
 # EMR Install?
 EMRINSTALL=false
 
-# For installing: R, vim, and 
+# For installing: R and vim 
 RINSTALL=false
 VIMINSTALL=false
 
 # For installing R Studio Server
 RSTUDIO=false
+RSTUDIOVERSION=0.98.1103 	#### UPDATE R STUDIO VERSION HERE
 RSTUDIOADDRESS="0.0.0.0"
 RSTUDIOPORT=8787
 
@@ -83,7 +115,11 @@ while [ $# -gt 0 ]; do
 		--rstudio)
 			RSTUDIO=true
 			;;
-        --rstudio-port)
+        --rstudio-version)
+            shift
+            RSTUDIOVERSION=$1
+            ;;
+		--rstudio-port)
             shift
             RSTUDIOPORT=$1
             ;;
@@ -152,6 +188,9 @@ if [ "$RINSTALL" == true ]; then
 	echo 'Installing R suite...' 
 
 	sudo yum install -y -q R
+
+	# Needed for XML Parser
+	sudo yum install -y -q libxml2-devel	
 fi
 
 # Environmental variable set yet?
@@ -159,8 +198,8 @@ if [ -z ${UIUC_IMAGE_VERSION+x} ]; then
 	echo "First run detected .... "
 	echo "Adding UIUC_IMAGE_VERSION environmental variable .... "
 	# Add in a new environmental variable to indicate image version
-	sudo sh -c "echo \"UIUC_IMAGE_VERSION='STAT490 Image Version: 1.2'\" >> $(R RHOME)/etc/Renviron"
-	sudo sh -c "echo \"export UIUC_IMAGE_VERSION='STAT490 Image Version: 1.2'\" >> /etc/profile"
+	sudo sh -c "echo \"UIUC_IMAGE_VERSION='STAT480 Image Version: ${UIUC_VERSION}'\" >> $(R RHOME)/etc/Renviron"
+	sudo sh -c "echo \"export UIUC_IMAGE_VERSION='STAT480 Image Version: ${UIUC_VERSION}'\" >> /etc/profile"
 else 
 	echo "The UIUC_IMAGE_VERSION variable has already been set to $UIUC_IMAGE_VERSION"; 
 fi
@@ -179,8 +218,9 @@ if [ "$RSTUDIO" == true -a "$IS_MASTER" == true ]; then
 	# Manually check to see if this is the latest release via: http://www.rstudio.com/products/rstudio/download-server/
 	# Set up for CentOS x64
 	sudo yum install -y -q openssl098e # Required only for RedHat/CentOS 6 and 7
-	wget -O /tmp/rstudio-server-0.98.1091-x86_64.rpm http://download2.rstudio.org/rstudio-server-0.98.1091-x86_64.rpm
-	sudo yum install -y -q --nogpgcheck /tmp/rstudio-server-0.98.1091-x86_64.rpm
+	
+	wget -O /tmp/rstudio-server-${RSTUDIOVERSION}-x86_64.rpm http://download2.rstudio.org/rstudio-server-${RSTUDIOVERSION}-x86_64.rpm
+	sudo yum install -y -q --nogpgcheck /tmp/rstudio-server-${RSTUDIOVERSION}-x86_64.rpm
 	
 	# Verify install
 	sudo rstudio-server verify-installation
@@ -204,7 +244,7 @@ if [ "$RSTUDIO" == true -a "$IS_MASTER" == true ]; then
 	echo '[tidying] Removing the image file ...'
 
 	# Remove the install image (save about 50 mb)
-	sudo rm -rf /tmp/rstudio-server-0.98.1091-x86_64.rpm
+	sudo rm -rf /tmp/rstudio-server-${RSTUDIOVERSION}-x86_64.rpm
 fi
 
 if [ "$CREATEUSER" == true ]; then
@@ -332,11 +372,12 @@ install_github('RevolutionAnalytics/plyrmr', subdir='pkg', args=c('-–byte-comp
 EOF
 fi
 
+# Install HPC Packages
 if [ "$RHPC" == true ]; then
 	echo 'Installing HPC packages ...'
 	sudo R --no-save << EOF
 # Installs some wonderful HPC Packages
-install.packages(c('bigmemory','ff,'ffbase','foreach','iterators','doMC','doSNOW','itertools'), repos='http://cran.us.r-project.org', INSTALL_opts=c('--byte-compile') )
+install.packages(c('bigmemory','ff','ffbase','foreach','iterators','doParallel','doMC','doSNOW','itertools'), repos='http://cran.us.r-project.org', INSTALL_opts=c('--byte-compile') )
 EOF
 fi
 
