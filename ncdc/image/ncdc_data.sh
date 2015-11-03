@@ -76,8 +76,14 @@ function main {
     fi
  
     create_folder $g_tmp_folder
-    create_folder $g_output_folder
- 
+    
+    if [ -d "$g_output_folder" ]; then
+        echo "Parent directory already exists."
+        else
+        echo "Creating parent directory."
+        create_folder $g_output_folder
+    fi
+    
     for year in `seq $start_year $finish_year`; do
         download_data $year
         local download_status=$?
