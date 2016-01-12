@@ -11,7 +11,7 @@
 #sudo bash
 
 # UID
-USER=nombre
+USER=name
 
 # Configures mysql/mariadb
 DATABASE_PASS=db
@@ -19,6 +19,10 @@ DATABASE_PASS=db
 # Disable firewalld at the moment
 systemctl disable firewalld
 systemctl stop firewalld
+
+# Disable ipv6
+sudo echo net.ipv6.conf.all.disable_ipv6=1>>/etc/sysctl.conf
+sysctl -p
 
 sudo yum clean all
 
@@ -99,7 +103,6 @@ transaction-isolation = READ-COMMITTED
 # Disabling symbolic-links is recommended to prevent assorted security risks;
 # to do so, uncomment this line:
 # symbolic-links = 0
-
 datadir=/var/lib/mysql
 socket=/var/lib/mysql/mysql.sock
 
@@ -218,6 +221,11 @@ sudo -u hdfs hadoop fs -chmod 1777 /user/hive/warehouse
 
 # Stop services
 for x in `cd /etc/init.d ; ls hadoop-*` ; do sudo service $x stop ; done
+
+# Fix job tracker info to be public instead of only localhost
+sudo sed -i 's|localhost:10020|0.0.0.0:10020|' /etc/hadoop/conf/mapred-site.xml
+sudo sed -i 's|localhost:19888|0.0.0.0:19888|' /etc/hadoop/conf/mapred-site.xml
+
 
 ##############################
 
@@ -487,9 +495,19 @@ EOF
 
 # Fix for sharelib failure
 # Solution: http://stackoverflow.com/questions/28702100/apache-oozie-failed-loading-sharelib
-sudo mv /etc/oozie/conf/hadoop-conf/core-site.xml /etc/oozie/conf/hadoop-conf/core-site.xml.orig
 
-ln -s /etc/hadoop/conf/core-site.xml /etc/oozie/conf/hadoop-conf/core-site.xml
+
+sudo sed -i 's|</configuration>||' /etc/oozie/conf/hadoop-conf/core-site.xml
+
+sudo cat <<EOF >> /etc/oozie/conf/hadoop-conf/core-site.xml
+   <property>
+    <name>fs.defaultFS</name>
+    <value>hdfs://localhost:8020</value>
+  </property>
+
+</configuration>
+EOF
+
 
 # Install ExtJs
 sudo wget -qO- -O tmp.zip https://archive.cloudera.com/gplextras/misc/ext-2.2.zip && unzip tmp.zip -d /var/lib/oozie -q && rm -rf tmp.zip
@@ -533,6 +551,8 @@ sudo -u hdfs hadoop fs
 
 # Spin down HDFS
 for x in `cd /etc/init.d ; ls hadoop-*` ; do sudo service $x stop ; done
+
+
 
 
 
