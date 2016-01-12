@@ -82,18 +82,12 @@ sudo yum -y --nogpgcheck localinstall cloudera-cdh-5-0.x86_64.rpm
 # mariadb / mysql
 ##############################################
 
-sudo yum -y install mariadb-server mariadb
+sudo rpm -Uvh http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm
 
-sudo service mariadb start
-sudo service mariadb stop
+sudo yum -y install mysql-community-server
 
-# Remove old log files
+systemctl enable mysqld
 
-mv /var/lib/mysql/ib_logfile0 /tmp/backup1
-mv /var/lib/mysql/ib_logfile1 /tmp/backup2
-
-# Enable mariadb on startup
-sudo systemctl enable mariadb.service
 
 # MariaDB JDBC driver
 # Download at: http://www.mysql.com/downloads/connector/j/5.1.html
@@ -102,7 +96,7 @@ sudo wget http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.
 sudo mkdir -p /usr/share/java/
 sudo cp mysql-connector-java-5.1.31/mysql-connector-java-5.1.31-bin.jar /usr/share/java/mysql-connector-java.jar
 
-sudo service mariadb start
+sudo systemctl start mysqld
 
 # Automated mysql_secure_installation
 mysqladmin -u root password "$DATABASE_PASS"
@@ -112,7 +106,7 @@ mysql -u root -p"$DATABASE_PASS" -e "DELETE FROM mysql.user WHERE User=''"
 mysql -u root -p"$DATABASE_PASS" -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%'"
 mysql -u root -p"$DATABASE_PASS" -e "FLUSH PRIVILEGES"
 
-sudo service mariadb stop
+sudo systemctl stop mysqld
 
 #################################################
 #################################################
@@ -306,11 +300,15 @@ ln -s /usr/share/java/mysql-connector-java.jar /usr/lib/hive/lib/mysql-connector
 
 cd /usr/lib/hive/scripts/metastore/upgrade/mysql
 
+sudo systemctl start mysqld
+
 # Create the database
 mysql -u root -p"$DATABASE_PASS" -e "CREATE DATABASE metastore; USE metastore; SOURCE /usr/lib/hive/scripts/metastore/upgrade/mysql/hive-schema-$HIVE_VERSION.mysql.sql;"
 
 # Create a user
 mysql -u root -p"$DATABASE_PASS" -e "CREATE USER 'hive'@'localhost' IDENTIFIED BY '$DATABASE_PASS'; REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'hive'@'$HIVE_HOST'; GRANT ALL PRIVILEGES ON metastore.* TO 'hive'@'$HIVE_HOST'; FLUSH PRIVILEGES;"
+
+sudo systemctl stop mysqld
 
 cd $OLDPWD
 
@@ -352,7 +350,7 @@ sudo cat <<EOF >> /usr/lib/hive/conf/hive-site.xml
 
 	<property>
 	  <name>hive.metastore.uris</name>
-	  <value>thrift://$HIVE_HOST:9083</value>
+	  <value>thrift://localhost:9083</value>
 	  <description>IP address (or fully-qualified domain name) and port of the metastore host</description>
 	</property>
 
@@ -360,18 +358,6 @@ sudo cat <<EOF >> /usr/lib/hive/conf/hive-site.xml
 		<name>hive.metastore.schema.verification</name>
 		<value>true</value>
 	</property>
-
-    <property>
-        <name>hive.support.concurrency</name>
-        <description>Enable Hive's Table Lock Manager Service</description>
-        <value>true</value>
-    </property>
-
-    <property>
-        <name>hive.zookeeper.quorum</name>
-        <description>Zookeeper quorum used by Hive's Table Lock Manager</description>
-        <value>zk1.myco.com,zk2.myco.com,zk3.myco.com</value>
-    </property>
 
 </configuration>
 EOF
@@ -399,7 +385,7 @@ alternatives --set oozie-tomcat-conf /etc/oozie/tomcat-conf.http
 ln -s /usr/share/java/mysql-connector-java.jar /var/lib/oozie/mysql-connector-java.jar
 
 # Create Oozie Database and Oozie MariaDB User
-sudo service mariadb start
+sudo systemctl start mysqld
 
 mysql -u root -p"$DATABASE_PASS" -e "create database oozie; grant all privileges on oozie.* to 'oozie'@'localhost' identified by 'oozie'; grant all privileges on oozie.* to 'oozie'@'%' identified by 'oozie';"
 
@@ -444,8 +430,31 @@ for x in `cd /etc/init.d ; ls hadoop-hdfs-*` ; do sudo service $x start ; done
 sudo -u hdfs hadoop fs -mkdir /user/oozie
 sudo -u hdfs hadoop fs -chown oozie:oozie /user/oozie
 
+
 # FS_URI = fs.defaultFS in core-site.xml, which is hdfs://localhost:8020
+
+# Why this approach does not work: http://blog.cloudera.com/blog/2014/05/how-to-use-the-sharelib-in-apache-oozie-cdh-5/
+#hdfs dfs -put /usr/lib/oozie/oozie-sharelib-yarn/lib /user/oozie/share
+
+# Error: java.io.FileNotFoundException: File /user/oozie/share/lib does not exist
+# http://gethue.com/running-an-oozie-workflow-and-getting-split-class-org-apache-oozie-action-hadoop-oozielauncherinputformatemptysplit-not-found/
+#sudo -u oozie /usr/lib/oozie/bin/oozie-setup.sh sharelib create -fs hdfs://localhost:8020 -locallib /usr/lib/oozie/oozie-sharelib-yarn
+
+#
 sudo oozie-setup sharelib create -fs hdfs://localhost:8020 -locallib /usr/lib/oozie/oozie-sharelib-yarn
+
+# Solution: http://stackoverflow.com/questions/28702100/apache-oozie-failed-loading-sharelib
+
+sudo mv /etc/oozie/conf/hadoop-conf/core-site.xml /etc/oozie/conf/hadoop-conf/core-site.xml.orig
+
+ln -s /etc/hadoop/conf/core-site.xml /etc/oozie/conf/hadoop-conf/core-site.xml
+
+sudo oozie admin -shareliblist -oozie http://localhost:11000/oozie
+
+sudo oozie admin -sharelibupdate -oozie http://localhost:11000/oozie
+
+sudo oozie admin -shareliblist -oozie http://localhost:11000/oozie
+
 
 # hack to move directory
 sudo -u hdfs hadoop fs
@@ -519,7 +528,7 @@ EOF
 # Spark
 ##################################
 
-# sudo yum -y install spark-core spark-master spark-worker spark-history-server spark-python
+sudo yum -y install spark-core spark-master spark-worker spark-history-server spark-python
 
 ##### Livy is bad.
 
@@ -585,6 +594,9 @@ sudo sed -i "s|secret_key=|secret_key=$SECRET_HASH|" /etc/hue/conf/hue.ini
 
 # Point to WebHDFS
 sudo sed -i "s|## webhdfs_url|webhdfs_url|" /etc/hue/conf/hue.ini
+
+# Disable spark from appearing in Hue
+sudo sed -i "s|## app_blacklist=|app_blacklist=spark|" /etc/hue/conf/hue.ini
 
 #james
 #giantpeach
