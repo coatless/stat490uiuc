@@ -146,9 +146,16 @@ sudo -u hdfs hadoop fs -chown $USER /user/$USER
 
 # Fix for HDFS file structure script
 sudo -u hdfs hadoop fs -mkdir /user/hive/warehouse
-sudo -u hdfs hadoop fs -chown hive /user/hive/warehouse
+# Allow users some power but not the ability to delete other tables
+# given: http://www.cloudera.com/content/www/en-us/documentation/enterprise/latest/topics/cdh_ig_filesystem_perm.html
 sudo -u hdfs hadoop fs -chmod 1777 /user/hive/warehouse
 
+# Temp fix for pig and job tracker issues?
+# http://www.cloudera.com/content/www/en-us/documentation/enterprise/latest/topics/cdh_ig_yarn_cluster_deploy.html
+# http://stackoverflow.com/questions/31379961/ja017-could-not-lookup-launched-hadoop-job-id
+sudo -u hdfs hadoop fs -mkdir -p /user/history
+sudo -u hdfs hadoop fs -chmod -R 1777 /user/history
+sudo -u hdfs hadoop fs -chown mapred:hadoop /user/history
 
 # Stop services
 for x in `cd /etc/init.d ; ls hadoop-*` ; do sudo service $x stop ; done
@@ -177,7 +184,7 @@ sudo mkdir -p /var/lib/zookeeper
 sudo chown -R zookeeper /var/lib/zookeeper/
 
 # Spin up Zookeeper
-sudo service zookeeper-server init --myid=1
+sudo service zookeeper-server init
 sudo service zookeeper-server start
 sudo service zookeeper-server stop
 
@@ -593,7 +600,7 @@ SECRET_HASH=090c39b3c2859d5c6e0fd7d63ccefc9ebdc6628c3ecbb
 
 sudo sed -i "s|secret_key=|secret_key=$SECRET_HASH|" /etc/hue/conf/hue.ini
 
-# Point to WebHDFS
+# Point to WebHDFS (uncomment the code block to set equal to WebHDFS)
 sudo sed -i "s|## webhdfs_url|webhdfs_url|" /etc/hue/conf/hue.ini
 
 # Disable spark from appearing in Hue
