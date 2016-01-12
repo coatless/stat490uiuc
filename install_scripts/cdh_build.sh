@@ -8,7 +8,7 @@
 
 
 # Log in as root
-sudo bash
+#sudo bash
 
 # UID
 USER=nombre
@@ -146,7 +146,8 @@ sudo -u hdfs hadoop fs -chown $USER /user/$USER
 
 # Fix for HDFS file structure script
 sudo -u hdfs hadoop fs -mkdir /user/hive/warehouse
-sudo -u hdfs hadoop fs -chown 1777 /user/hive/warehouse
+sudo -u hdfs hadoop fs -chown hive /user/hive/warehouse
+sudo -u hdfs hadoop fs -chmod 1777 /user/hive/warehouse
 
 
 # Stop services
