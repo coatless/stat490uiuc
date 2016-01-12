@@ -86,13 +86,72 @@ sudo rpm -Uvh http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm
 
 sudo yum -y install mysql-community-server
 
+# Configure the mysql wrapper
+
+# Remove innodb settings
+mv /var/lib/mysql/ib_logfile0 /tmp/backup0 
+mv /var/lib/mysql/ib_logfile1 /tmp/backup1 
+
+
+sudo cat <<EOF > /etc/my.cnf
+[mysqld]
+transaction-isolation = READ-COMMITTED
+# Disabling symbolic-links is recommended to prevent assorted security risks;
+# to do so, uncomment this line:
+# symbolic-links = 0
+
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+
+key_buffer = 16M
+key_buffer_size = 32M
+max_allowed_packet = 32M
+thread_stack = 256K
+thread_cache_size = 64
+query_cache_limit = 8M
+query_cache_size = 64M
+query_cache_type = 1
+
+max_connections = 550
+#expire_logs_days = 10
+#max_binlog_size = 100M
+
+#log_bin should be on a disk with enough free space. Replace '/var/lib/mysql/mysql_binary_log' with an appropriate path for your system
+#and chown the specified folder to the mysql user.
+log_bin=/var/lib/mysql/mysql_binary_log
+
+# For MySQL version 5.1.8 or later. Comment out binlog_format for older versions.
+binlog_format = mixed
+
+read_buffer_size = 2M
+read_rnd_buffer_size = 16M
+sort_buffer_size = 8M
+join_buffer_size = 8M
+
+# InnoDB settings
+innodb_file_per_table = 1
+innodb_flush_log_at_trx_commit  = 2
+innodb_log_buffer_size = 64M
+innodb_buffer_pool_size = 4G
+innodb_thread_concurrency = 8
+innodb_flush_method = O_DIRECT
+innodb_log_file_size = 512M
+
+[mysqld_safe]
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+
+sql_mode=STRICT_ALL_TABLES
+EOF
+
+# Enable at launch
 systemctl enable mysqld
 
 
-# MariaDB JDBC driver
+# MySQL JDBC driver
 # Download at: http://www.mysql.com/downloads/connector/j/5.1.html
 
-sudo wget http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.31.tar.gz && tar zxvf mysql-connector-java-5.1.31.tar.gz
+sudo wget http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.31.tar.gz && tar zxf mysql-connector-java-5.1.31.tar.gz
 sudo mkdir -p /usr/share/java/
 sudo cp mysql-connector-java-5.1.31/mysql-connector-java-5.1.31-bin.jar /usr/share/java/mysql-connector-java.jar
 
@@ -153,9 +212,9 @@ sudo -u hdfs hadoop fs -chmod 1777 /user/hive/warehouse
 # Temp fix for pig and job tracker issues?
 # http://www.cloudera.com/content/www/en-us/documentation/enterprise/latest/topics/cdh_ig_yarn_cluster_deploy.html
 # http://stackoverflow.com/questions/31379961/ja017-could-not-lookup-launched-hadoop-job-id
-sudo -u hdfs hadoop fs -mkdir -p /user/history
-sudo -u hdfs hadoop fs -chmod -R 1777 /user/history
-sudo -u hdfs hadoop fs -chown mapred:hadoop /user/history
+#sudo -u hdfs hadoop fs -mkdir -p /user/history
+#sudo -u hdfs hadoop fs -chmod -R 1777 /user/history
+#sudo -u hdfs hadoop fs -chown mapred:hadoop /user/history
 
 # Stop services
 for x in `cd /etc/init.d ; ls hadoop-*` ; do sudo service $x stop ; done
@@ -398,7 +457,7 @@ sudo systemctl start mysqld
 mysql -u root -p"$DATABASE_PASS" -e "create database oozie; grant all privileges on oozie.* to 'oozie'@'localhost' identified by 'oozie'; grant all privileges on oozie.* to 'oozie'@'%' identified by 'oozie';"
 
 
-# Modify property file
+# Modify property file and enable uber jars
 sudo sed -i 's|</configuration>||' /etc/oozie/conf/oozie-site.xml
 
 sudo cat <<EOF >> /etc/oozie/conf/oozie-site.xml
@@ -418,26 +477,34 @@ sudo cat <<EOF >> /etc/oozie/conf/oozie-site.xml
         <name>oozie.service.JPAService.jdbc.password</name>
         <value>oozie</value>
     </property>
+	<property>
+        <name>oozie.action.mapreduce.uber.jar.enable</name>
+        <value>true</value>
+	</property>
 	
 </configuration>
 EOF
 
-# Oozie Database Schema
-sudo -u oozie /usr/lib/oozie/bin/ooziedb.sh create -run
+# Fix for sharelib failure
+# Solution: http://stackoverflow.com/questions/28702100/apache-oozie-failed-loading-sharelib
+sudo mv /etc/oozie/conf/hadoop-conf/core-site.xml /etc/oozie/conf/hadoop-conf/core-site.xml.orig
 
+ln -s /etc/hadoop/conf/core-site.xml /etc/oozie/conf/hadoop-conf/core-site.xml
+
+# Install ExtJs
+sudo wget -qO- -O tmp.zip https://archive.cloudera.com/gplextras/misc/ext-2.2.zip && unzip tmp.zip -d /var/lib/oozie -q && rm -rf tmp.zip
 
 ### Enabling the Oozie Web console
 
-# ExtJs
-sudo wget -qO- -O tmp.zip https://archive.cloudera.com/gplextras/misc/ext-2.2.zip && unzip tmp.zip -d /var/lib/oozie && rm -rf tmp.zip
-
 # Spin up HDFS
-for x in `cd /etc/init.d ; ls hadoop-hdfs-*` ; do sudo service $x start ; done
+for x in `cd /etc/init.d ; ls hadoop-*` ; do sudo service $x start ; done
+
+# Oozie Database Schema
+sudo -u oozie /usr/lib/oozie/bin/ooziedb.sh create -run
 
 # Install the Oozie ShareLib in Hadoop HDFS
 sudo -u hdfs hadoop fs -mkdir /user/oozie
 sudo -u hdfs hadoop fs -chown oozie:oozie /user/oozie
-
 
 # FS_URI = fs.defaultFS in core-site.xml, which is hdfs://localhost:8020
 
@@ -448,14 +515,11 @@ sudo -u hdfs hadoop fs -chown oozie:oozie /user/oozie
 # http://gethue.com/running-an-oozie-workflow-and-getting-split-class-org-apache-oozie-action-hadoop-oozielauncherinputformatemptysplit-not-found/
 #sudo -u oozie /usr/lib/oozie/bin/oozie-setup.sh sharelib create -fs hdfs://localhost:8020 -locallib /usr/lib/oozie/oozie-sharelib-yarn
 
-#
-sudo oozie-setup sharelib create -fs hdfs://localhost:8020 -locallib /usr/lib/oozie/oozie-sharelib-yarn
-
 # Solution: http://stackoverflow.com/questions/28702100/apache-oozie-failed-loading-sharelib
 
-sudo mv /etc/oozie/conf/hadoop-conf/core-site.xml /etc/oozie/conf/hadoop-conf/core-site.xml.orig
+sudo oozie-setup sharelib create -fs hdfs://localhost:8020 -locallib /usr/lib/oozie/oozie-sharelib-yarn
 
-ln -s /etc/hadoop/conf/core-site.xml /etc/oozie/conf/hadoop-conf/core-site.xml
+sudo service oozie start
 
 sudo oozie admin -shareliblist -oozie http://localhost:11000/oozie
 
@@ -468,20 +532,9 @@ sudo oozie admin -shareliblist -oozie http://localhost:11000/oozie
 sudo -u hdfs hadoop fs
 
 # Spin down HDFS
-for x in `cd /etc/init.d ; ls hadoop-hdfs-*` ; do sudo service $x stop ; done
+for x in `cd /etc/init.d ; ls hadoop-*` ; do sudo service $x stop ; done
 
 
-#  Enable Uber JARs
-sudo sed -i 's|</configuration>||' /etc/oozie/conf/oozie-site.xml
-
-sudo cat <<EOF >> /etc/oozie/conf/oozie-site.xml
-   <property>
-        <name>oozie.action.mapreduce.uber.jar.enable</name>
-        <value>true</value>
-	</property>
-
-</configuration>
-EOF
 
 
 ############################
@@ -606,8 +659,11 @@ sudo sed -i "s|## webhdfs_url|webhdfs_url|" /etc/hue/conf/hue.ini
 # Disable spark from appearing in Hue
 sudo sed -i "s|## app_blacklist=|app_blacklist=spark|" /etc/hue/conf/hue.ini
 
-#james
-#giantpeach
+# help hue along
+sudo sed -i "s|## resourcemanager_host|resourcemanager_host|" /etc/hue/conf/hue.ini
+sudo sed -i "s|## resourcemanager_port|resourcemanager_port|" /etc/hue/conf/hue.ini
+
+
 
 ###################################################################
 ###################################################################
@@ -620,15 +676,11 @@ touch uiuc-hadoop.sh
 cat <<EOF >> uiuc-hadoop.sh
 HADOOP_MAPRED_HOME=/usr/lib/hadoop-mapreduce
 HADOOP_CONF_DIR=/etc/hadoop/conf
-PIG_CONF_DIR=/usr/lib/pig/conf
-PIG_CLASSPATH=/usr/lib/hbase/hbase-0.94.2-cdh4.2.0-security.jar:/usr/lib/zookeeper/zookeeper-3.4.5-cdh4.2.0.jar
 OOZIE_URL=http://localhost:11000/oozie
 EOF
 
 # Move it to java.sh profile
 sudo mv uiuc-hadoop.sh /etc/profile.d/uiuc-hadoop.sh
-
-
 
 ######################
 # Startup order
