@@ -8,7 +8,17 @@
 ##  default values for year are 1901 and 1910
 ##  default output folder is all
 #############################
-## Initial Release 1.0 -- 01/22/15
+## Initial Release 1.0 -- 01/22/15 by James Balamuta
+## Version 1.1 -- 01/08/16 by Darren Glosemeyer
+##	- script changed to not automatically overwrite existing parent data directory; 
+##	  this avoids removal of existing files from years not included in the range of years;
+##	  existing directories can be quickly manually deleted if desired
+##	- changed process_data to remove existing year.zip file before adding to it;
+##	  this avoids duplication of data that already exists;
+##	  the assumption is that if a user has asked for that year's data they want a 
+##	  fresh download of the files
+##	- changed the code to use curl -O instead of wget because wget is not available
+##	  in the new container being used
 #############################
 ## The objective of this file is to download the ncdc weather data directly through NOAA.
 ## This avoids the use of Amazon's S3 file storage system. 
@@ -16,7 +26,7 @@
 ## The script mimics the default processing by the book without using hadoop.
 #############################
 ## # Obtain Script
-## wget https://raw.githubusercontent.com/coatless/stat490uiuc/master/ncdc/image/ncdc_data.sh
+## curl -O https://raw.githubusercontent.com/coatless/stat490uiuc/master/ncdc/image/ncdc_data.sh
 ## chmod u+x ncdc_data.sh
 ## 
 ## # Run the script
@@ -41,8 +51,26 @@ function create_folder {
 # $1: year to download
 function download_data {
     local source_url="ftp://$g_remote_host/$g_remote_path/$1"
-    wget -r -c -q --no-parent -P "$g_tmp_folder" "$source_url";
+    local currentdir=$(pwd)
+## Note the directory creation and changing is used so the curl'ed files are placed in 
+## the directory expected by the processing code. If wget is available on the system,
+## everything from
+##  	local currentdir=...
+## through 
+##	cd $currentdir 
+## can be replaced with
+##	wget -r -c -q --no-parent -P "$g_tmp_folder" "$source_url";
+##
+     	mkdir -p $g_tmp_folder/$g_remote_host/$g_remote_path/$year
+	cd $g_tmp_folder/$g_remote_host/$g_remote_path/$year
 	echo "Downloading... $1"
+# Following replacement for recursive wget is based on suggestion by quanta on
+# http://serverfault.com/questions/326852/curl-ftp-ssl-to-grab-all-files-in-remote-directory
+	curl -s $source_url/ | grep -e '^-' | awk '{ print $9 }' |
+	  while read f; 
+		do curl -s -o $f $source_url/$f;
+	  done
+	cd $currentdir
 }
  
 # $1: year to process
@@ -54,6 +82,8 @@ function process_data {
         gunzip -c $file >> "$tmp_output_file"
     done
     zipped_file="$g_output_folder/$year.gz"
+    # if the zip file already exists, remove it to avoid duplicating data
+    rm -f $zipped_file
     gzip -c "$tmp_output_file" >> "$zipped_file"
     echo "Created file: $zipped_file"
 
